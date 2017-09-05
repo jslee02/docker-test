@@ -11,6 +11,8 @@ image: Visual Studio 2017
 install:
   - docker version
 
+build: off
+
 #build_script:
 #  - docker build -t me/myfavoriteapp .
 
