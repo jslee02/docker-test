@@ -82,15 +82,7 @@ before_script:
 
 script:
   - if [ -n "$DOCKER_FILE" ]; then
-      docker exec test-docker /bin/sh -c "cd $TRAVIS_BUILD_DIR && ls";
-      docker exec test-docker /bin/sh -c "cd $TRAVIS_BUILD_DIR && mkdir build";
-      docker exec test-docker /bin/sh -c "cd $TRAVIS_BUILD_DIR/build && cmake ..";
-      docker exec test-docker /bin/sh -c "cd $TRAVIS_BUILD_DIR/build && make -j4";
-      docker exec test-docker /bin/sh -c "cd $TRAVIS_BUILD_DIR/build && ctest -j4";
+      docker exec test-docker /bin/sh -c "cd $TRAVIS_BUILD_DIR && ./.ci/script.sh";
     else
-      mkdir -p build &&
-      cd build &&
-      cmake .. &&
-      make -j4 &&
-      ctest -j4;
+      ./.ci/script.sh;
     fi
