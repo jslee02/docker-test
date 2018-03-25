@@ -1,0 +1,96 @@
+dist: trusty
+
+sudo: required
+
+language: cpp
+
+matrix:
+  include:
+    # Ubuntu Trusty
+    - osg: linux
+      dist: trusty
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - sourceline: 'ppa:libccd-debs/ppa'
+            - sourceline: 'ppa:fcl-debs/ppa'
+            - sourceline: 'ppa:dartsim/ppa'
+            - sourceline: 'deb http://packages.ros.org/ros/ubuntu trusty main'
+              key_url: 'https://raw.githubusercontent.com/ros/rosdistro/master/ros.key'
+          packages:
+            - cmake
+            - libassimp-dev
+            - libboost-all-dev
+            - libccd-dev
+            - libeigen3-dev
+            - libfcl-dev
+            - freeglut3-dev
+            - libxi-dev
+            - libxmu-dev
+            - libbullet-dev
+            - libflann-dev
+            - libnlopt-dev
+            - coinor-libipopt-dev
+            - libtinyxml2-dev
+            - liburdfdom-dev
+            - liburdfdom-headers-dev
+            - libopenscenegraph-dev
+            - clang-format-3.8
+            - lcov
+            - ros-indigo-desktop
+      cache:
+        apt: true
+        directories:
+          - /usr/local
+    # Ubuntu Xenial
+    - os: linux
+      env: DOCKER_FILE="ubuntu-xenial"
+      services: docker
+    # Ubuntu Artful
+    - os: linux
+      env: DOCKER_FILE="ubuntu-artful"
+      services: docker
+    # Ubuntu Bionic
+    - os: linux
+      env: DOCKER_FILE="ubuntu-bionic"
+      services: docker
+    # macOS
+    - os: osx
+      osx_image: xcode9.1
+      compiler: clang
+      cache:
+        directories:
+          - /usr/local
+
+install:
+  - if [ -n "$DOCKER_FILE" ]; then
+      docker build -t "$DOCKER_FILE" -f ".ci/docker/$DOCKER_FILE" .;
+    fi
+  - if [ -z "$DOCKER_FILE" -a "$TRAVIS_OS_NAME" = "osx" ]; then
+      brew update;
+      brew install ode eigen;
+    fi
+  - if [ -z "$DOCKER_FILE" -a "$TRAVIS_OS_NAME" = "linux" ]; then
+      gcc --version;
+    fi
+
+before_script:
+  - if [ -n "$DOCKER_FILE" ]; then
+      docker run -itd -v $TRAVIS_BUILD_DIR:$TRAVIS_BUILD_DIR --name test-docker "$DOCKER_FILE";
+    fi
+
+script:
+  - if [ -n "$DOCKER_FILE" ]; then
+      docker exec test-docker /bin/sh -c "cd $TRAVIS_BUILD_DIR && ls";
+      docker exec test-docker /bin/sh -c "cd $TRAVIS_BUILD_DIR && mkdir build";
+      docker exec test-docker /bin/sh -c "cd $TRAVIS_BUILD_DIR/build && cmake ..";
+      docker exec test-docker /bin/sh -c "cd $TRAVIS_BUILD_DIR/build && make -j4";
+      docker exec test-docker /bin/sh -c "cd $TRAVIS_BUILD_DIR/build && ctest -j4";
+    else
+      mkdir -p build &&
+      cd build &&
+      cmake .. &&
+      make -j4 &&
+      ctest -j4;
+    fi
