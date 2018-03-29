@@ -1,5 +1,7 @@
 #!/bin/sh
-set -ex
+set -xe
+
+uname -a
 
 mkdir -p build
 cd build
