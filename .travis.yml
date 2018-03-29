@@ -47,6 +47,10 @@ matrix:
     - os: linux
       env: DOCKER_FILE="ubuntu-xenial"
       services: docker
+    # Ubuntu Xenial (i386)
+    - os: linux
+      env: DOCKER_FILE="ubuntu-xenial-i386"
+      services: docker
     # Ubuntu Artful
     - os: linux
       env: DOCKER_FILE="ubuntu-artful"
