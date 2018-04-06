@@ -7,4 +7,5 @@ RUN apt-get install -y \
     curl \
     git \
     pkg-config \
+    python \
     sudo
